@@ -125,13 +125,28 @@ def convert_date(time: str):
 def day_tick():
     global s, assessments, assessment_queue
     if datetime.datetime.today().weekday() in range(0, 7): # Check if the day is a weekday
-        schoolwork_start_time = convert_date(list(scheduled_messages)[8])
+        schoolwork_start_time = "16:30"
         assessment = random.choice(assessment_queue)
-        scheduled_messages[schoolwork_start_time] = f'Work on this {assessment} for {assessment.hours_per_week} hours'
-        if assessment.hours_per_week < 1.5:
-            assessment_queue.remove(assessment)
+
+        if assessment.hours_per_week > 1.5:
+            assessment_queue[assessment_queue.index(assessment)].hours_per_week_completed -= 1.5
+            scheduled_messages[schoolwork_start_time] = f'Work on this {assessment.title} for 1.5 hours'
+
+            i = convert_date(schoolwork_start_time)
+            j = datetime.timedelta(hours=1, minutes=30)
+            # j = datetime.timedelta(hours=int(str(assessment.hours_per_week_completed).split('.')[0]), minutes=int(str(assessment.hours_per_week_completed).split('.')[1]))
+            homework_start_time = (i + j).strftime("%H:%M")
+            print(i, j, homework_start_time, assessment.hours_per_week_completed)
+            
+            scheduled_messages[homework_start_time] = \
+                            ("Time for homework", lambda: (
+                                    send_message(process_command('homework?'))
+                            ))
         
-        else: assessment_queue[assessment].hours_per_week_completed -= 1.5
+        
+        else: assessment_queue.remove(assessment)
+
+        pprintpp.pprint(scheduled_messages)
 
 
         for status in scheduled_messages_status:
