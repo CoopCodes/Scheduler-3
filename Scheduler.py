@@ -61,11 +61,11 @@ scheduled_messages_status = [ False for _ in scheduled_messages.items() ]
 
 assessments_path = "lists/assessments.csv"
 assessments = Assessment.read_assessments_csv(assessments_path);
-print(assessments)
 
 assessment_queue = [
     assessment for assessment in assessments
 ]
+today_assessment = random.choice(assessment_queue)
 
 print("{:02d}:{:02d}".format(datetime.datetime.now().hour, datetime.datetime.now().minute + 1))
 
@@ -125,29 +125,9 @@ def convert_date(time: str):
 def day_tick():
     global s, assessments, assessment_queue
     if datetime.datetime.today().weekday() in range(0, 7): # Check if the day is a weekday
-        schoolwork_start_time = "16:30"
-        assessment = random.choice(assessment_queue)
+        schedule()
 
-        if assessment.hours_per_week > 1.5:
-            assessment_queue[assessment_queue.index(assessment)].hours_per_week_completed -= 1.5
-            scheduled_messages[schoolwork_start_time] = f'Work on this {assessment.title} for 1.5 hours'
-
-            i = convert_date(schoolwork_start_time)
-            j = datetime.timedelta(hours=1, minutes=30)
-            # j = datetime.timedelta(hours=int(str(assessment.hours_per_week_completed).split('.')[0]), minutes=int(str(assessment.hours_per_week_completed).split('.')[1]))
-            homework_start_time = (i + j).strftime("%H:%M")
-            print(i, j, homework_start_time, assessment.hours_per_week_completed)
-            
-            scheduled_messages[homework_start_time] = \
-                            ("Time for homework", lambda: (
-                                    send_message(process_command('homework?'))
-                            ))
-        
-        
-        else: assessment_queue.remove(assessment)
-
-        pprintpp.pprint(scheduled_messages)
-
+        todays_assessment = random.choice(assessment_queue)
 
         for status in scheduled_messages_status:
             status = False
@@ -155,6 +135,36 @@ def day_tick():
     else: print('weekend')
 
     assessments = Assessment.read_assessments_csv(assessments_path);
+
+def schedule(random=False):
+    global todays_assessment, s, assessments, assessment_queue
+    schoolwork_start_time = "16:30"
+    
+    if random == True:
+        todays_assessment = random.choice(assessment_queue)
+
+    assessment = todays_assessment
+
+
+    if assessment.hours_per_week > 1.5:
+        assessment_queue[assessment_queue.index(assessment)].hours_per_week_completed -= 1.5
+        scheduled_messages[schoolwork_start_time] = f'Work on this {assessment.title} for 1.5 hours'
+
+        i = convert_date(schoolwork_start_time)
+        j = datetime.timedelta(hours=1, minutes=30)
+        # j = datetime.timedelta(hours=int(str(assessment.hours_per_week_completed).split('.')[0]), minutes=int(str(assessment.hours_per_week_completed).split('.')[1]))
+        homework_start_time = (i + j).strftime("%H:%M")
+        print(i, j, homework_start_time, assessment.hours_per_week_completed)
+        
+        scheduled_messages[homework_start_time] = \
+                        ("Time for homework", lambda: (
+                                send_message(process_command('homework?'))
+                        ))
+    
+    
+    else: assessment_queue.remove(assessment)
+
+    pprintpp.pprint(scheduled_messages)
 
 
 t = threading.Thread(target=run_scheduler)
@@ -200,6 +210,9 @@ def on_list_interaction(message):
             Assessment.write_assessments_to_csv(assessments, assessments_path)
             assessments = Assessment.read_assessments_csv(assessments_path)
             send_message(f'Assessment Saved \nhours per week: {assessment.hours_per_week} hours')
+            
+            if len(assessments) < 2:
+                schedule(True)
             
         
         elif (message.text.startswith('assessment?')):
