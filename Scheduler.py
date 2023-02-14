@@ -102,15 +102,18 @@ def event_loop():
 
 
 # Function to send the scheduled message
-def send_message(message):
+def send_message(message, html=False):
     global bot
-    print(message)
-    bot.send_message(chat_id=chat_id, text=message)
+    try:
+        print(message)
+        if html == False: 
+            bot.send_message(chat_id=chat_id, text=message)
+        else:
+            bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
 
-def send_message_html(message):
-    global bot
-    print(message)
-    bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
+    except telebot.apihelper.ApiTelegramException:
+        print('Empty message')
+        bot.send_message(chat_id=chat_id, text="Empty message")
 
 def scheduled_event(event):
     if not isinstance(event, tuple):
@@ -229,7 +232,7 @@ def on_list_interaction(message):
             for assessment in assessments:
                 assessments_str += f'<b>{assessment.title}</b>:\n     Subject: {assessment.subject}\n     Due Date: {assessment.due_date}\n     Date Handed In: {assessment.assessment_handout_date}\n     Estimated Hours: {assessment.estimated_hours}\n     Hours Per Week: {assessment.hours_per_week}\n------------------------------------------\n'
 
-            send_message_html(assessments_str)
+            send_message(assessments_str, True)
 
 
 
