@@ -71,6 +71,8 @@ def get_task_list(list_name):
         return load_task_list("homework.txt")
     elif list_name == "chores":
         return load_task_list("chores.txt")
+    elif list_name == "todo":
+        return load_task_list("todo.txt")
 
 def save_task_list(list_name, task_list):
     """Saves the given task list to the specified file.
