@@ -4,6 +4,7 @@ import datetime
 import time as ttime
 import sched
 import random
+import pytz
 import csv
 import requests
 import pprintpp
@@ -17,6 +18,7 @@ from ProjectEuler import get_problem
 
 # Get the current day's classes from the classes module
 todays_classes = Classes.get_todays_classes()
+tz = pytz.timezone('Australia/Brisbane')
 
 # Set up the scheduler
 s = sched.scheduler(ttime.time, ttime.sleep)
@@ -44,6 +46,7 @@ scheduled_messages = {
 
     # Assessment to be worked on determined on day
     # Start homework (Determined on day)
+    str(datetime.datetime.now(tz).hour) + ":" + str(datetime.datetime.now(tz).minute): "test",
 
     "19:00": ("Chores 💀", lambda: (
         send_message(process_command('chores?'))
@@ -59,15 +62,15 @@ scheduled_messages = {
 
 scheduled_messages_status = [ False for _ in scheduled_messages.items() ]
 
-assessments_path = "lists/assessments.csv"
+assessments_path = "Lists/assessments.csv"
 assessments = Assessment.read_assessments_csv(assessments_path);
 
 assessment_queue = [
     assessment for assessment in assessments
 ]
-today_assessment = random.choice(assessment_queue)
+todays_assessment = random.choice(assessment_queue)
 
-print("{:02d}:{:02d}".format(datetime.datetime.now().hour, datetime.datetime.now().minute + 1))
+# print("{:02d}:{:02d}".format(datetime.datetime.now(tz).hour, datetime.datetime.now(tz).minute + 1))
 
 tz = timezone('Australia/Brisbane')
 
@@ -81,13 +84,12 @@ def run_scheduler():
     global s
     s.run()
     day_tick()
-    print('scheduler ran')
-  
+
 def event_loop():
     global current_time, tz, day_tick_time
     while True:
-        current_time = convert_date("{:02d}:{:02d}".format(datetime.datetime.now().hour, datetime.datetime.now().minute))
-        current_time_f = "{:02d}:{:02d}".format(datetime.datetime.now().hour, datetime.datetime.now().minute)
+        current_time = convert_date("{:02d}:{:02d}".format(datetime.datetime.now(tz).hour, datetime.datetime.now(tz).minute))
+        current_time_f = "{:02d}:{:02d}".format(datetime.datetime.now(tz).hour, datetime.datetime.now(tz).minute)
         if str(current_time.hour) == str(day_tick_time.split(':')[0]) and str(current_time.minute == day_tick_time.split(':')[1]):
             day_tick()
 
@@ -111,7 +113,6 @@ def send_message_html(message):
     bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
 
 def scheduled_event(event):
-    print('hello')
     if not isinstance(event, tuple):
         send_message(event)
     else:
@@ -119,7 +120,7 @@ def scheduled_event(event):
         event[1]()
 
 def convert_date(time: str):
-    today = datetime.datetime.now()
+    today = datetime.datetime.now(tz)
     return datetime.datetime(today.year, today.month, today.day, int(time.split(':')[0]), int(time.split(':')[1]))
 
 def day_tick():
@@ -139,7 +140,7 @@ def day_tick():
 def schedule(random=False):
     global todays_assessment, s, assessments, assessment_queue
     schoolwork_start_time = "16:30"
-    
+
     if random == True:
         todays_assessment = random.choice(assessment_queue)
 
@@ -148,23 +149,23 @@ def schedule(random=False):
 
     if assessment.hours_per_week > 1.5:
         assessment_queue[assessment_queue.index(assessment)].hours_per_week_completed -= 1.5
-        scheduled_messages[schoolwork_start_time] = f'Work on this {assessment.title} for 1.5 hours'
+        scheduled_messages[schoolwork_start_time] = f'Work on {assessment.title} for 1.5 hours'
 
         i = convert_date(schoolwork_start_time)
         j = datetime.timedelta(hours=1, minutes=30)
         # j = datetime.timedelta(hours=int(str(assessment.hours_per_week_completed).split('.')[0]), minutes=int(str(assessment.hours_per_week_completed).split('.')[1]))
         homework_start_time = (i + j).strftime("%H:%M")
-        print(i, j, homework_start_time, assessment.hours_per_week_completed)
-        
+
         scheduled_messages[homework_start_time] = \
                         ("Time for homework", lambda: (
                                 send_message(process_command('homework?'))
                         ))
-    
-    
+
+
     else: assessment_queue.remove(assessment)
 
-    pprintpp.pprint(scheduled_messages)
+    scheduled_messages_status = [ False for _ in scheduled_messages.items() ]
+
 
 
 t = threading.Thread(target=run_scheduler)
@@ -177,9 +178,9 @@ send_message('Online')
 
 @bot.message_handler()
 def on_list_interaction(message):
+    global todays_assessment
     print('Message Recieved')
-    for thread in threading.enumerate():
-        print(thread.is_alive())
+
     message.text = message.text[0].lower() + message.text[1::]
     try:
         result = process_command(message.text)
@@ -198,26 +199,26 @@ def on_list_interaction(message):
 
         elif (message.text.startswith('assessment:')):
             assessments = Assessment.read_assessments_csv(assessments_path)
-            
+
             assessment = Assessment.Assessment(
-                    message.text.split(',')[0].split(':')[1], 
-                    message.text.split(',')[1], 
-                    message.text.split(',')[2], 
-                    message.text.split(',')[3], 
+                    message.text.split(',')[0].split(':')[1],
+                    message.text.split(',')[1],
+                    message.text.split(',')[2],
+                    message.text.split(',')[3],
                     message.text.split(',')[4]
             ); assessments.append(assessment)
-            
+
             Assessment.write_assessments_to_csv(assessments, assessments_path)
             assessments = Assessment.read_assessments_csv(assessments_path)
             send_message(f'Assessment Saved \nhours per week: {assessment.hours_per_week} hours')
-            
+
             if len(assessments) < 2:
                 schedule(True)
-            
-        
+
+
         elif (message.text.startswith('assessment?')):
             send_message("Format: title, subject, due_date, assessment_handout_date, estimated_hours")
-        
+
         elif (message.text.startswith('assessments?')):
             assessments = Assessment.read_assessments_csv(assessments_path)
             assessments_str = "------------------------------------------\n"
@@ -227,10 +228,10 @@ def on_list_interaction(message):
 
             for assessment in assessments:
                 assessments_str += f'<b>{assessment.title}</b>:\n     Subject: {assessment.subject}\n     Due Date: {assessment.due_date}\n     Date Handed In: {assessment.assessment_handout_date}\n     Estimated Hours: {assessment.estimated_hours}\n     Hours Per Week: {assessment.hours_per_week}\n------------------------------------------\n'
-            
+
             send_message_html(assessments_str)
 
-        
+
 
         return
 

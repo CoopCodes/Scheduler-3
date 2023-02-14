@@ -2,8 +2,8 @@ import csv
 from datetime import datetime
 
 class Assessment:
-    def __init__(self, title, subject, due_date, 
-                assessment_handout_date, 
+    def __init__(self, title, subject, due_date,
+                assessment_handout_date,
                 estimated_hours):
         self.title = title
         self.subject = subject
@@ -18,7 +18,7 @@ class Assessment:
 
         self.estimated_hours = int(estimated_hours)
         self.hours_per_week = \
-            round(self.estimated_hours / (int((self.due_date - self.assessment_handout_date).days) / 7), 2)
+            abs(round(self.estimated_hours / (int((self.due_date - self.assessment_handout_date).days) / 7), 2))
         self.hours_per_week_completed = self.hours_per_week
 
 
@@ -26,14 +26,14 @@ class Assessment:
 def write_assessments_to_csv(assessments, file_path):
     with open(file_path, 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['title', 'subject', 'due_date', 
-                         'assessment_handout_date', 'estimated_hours', 
+        writer.writerow(['title', 'subject', 'due_date',
+                         'assessment_handout_date', 'estimated_hours',
                          'hours_per_week'])
         for assessment in assessments:
-            writer.writerow([assessment.title, assessment.subject, 
-                             assessment.due_date, 
-                             assessment.assessment_handout_date, 
-                             assessment.estimated_hours, 
+            writer.writerow([assessment.title, assessment.subject,
+                             assessment.due_date,
+                             assessment.assessment_handout_date,
+                             assessment.estimated_hours,
                              assessment.hours_per_week])
 
 
