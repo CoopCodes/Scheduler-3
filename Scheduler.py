@@ -162,7 +162,7 @@ def schedule(random=False):
                         ))
 
 
-    else: assessment_queue.remove(assessment)
+    else: assessment_queue.remove(assessment) 
 
     scheduled_messages_status = [ False for _ in scheduled_messages.items() ]
 
