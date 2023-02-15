@@ -112,9 +112,16 @@ def send_message(message, html=False):
     try:
         print(message)
         if html == False: 
-            bot.send_message(chat_id=chat_id, text=message)
+            if isinstance(message, tuple): 
+                bot.send_message(chat_id=chat_id, text=message[0])
+                bot.send_message(chat_id=chat_id, text=message[1])
+            else: bot.send_message(chat_id=chat_id, text=message)
         else:
-            bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
+            if isinstance(message, tuple): 
+                bot.send_message(chat_id=chat_id, text=message[0], parse_mode='HTML')
+                bot.send_message(chat_id=chat_id, text=message[1], parse_mode='HTML')
+            else: bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
+
 
     except telebot.apihelper.ApiTelegramException:
         print('Empty message')
@@ -132,7 +139,7 @@ def convert_date(time: str):
     return datetime.datetime(today.year, today.month, today.day, int(time.split(':')[0]), int(time.split(':')[1]))
 
 def day_tick():
-    global s, assessments, assessment_queue
+    global s, assessments, assessment_queue, scheduled_messages_status, todays_assessment, todays_classes
     if datetime.datetime.today().weekday() in range(0, 7): # Check if the day is a weekday
         schedule()
 
@@ -143,7 +150,15 @@ def day_tick():
 
     else: print('weekend')
 
-    assessments = Assessment.read_assessments_csv(assessments_path);
+    assessments = Assessment.read_assessments_csv(assessments_path)
+    today = datetime.datetime.today(tz)
+    if today.weekday() == 0: 
+        weekend_end_tick()
+
+def weekend_end_tick():
+    global assessments
+    for assessment in assessments:
+        assessment.hours_per_week_to_be_completed = assessment.hours_per_week
 
 def schedule(random=False):
     global todays_assessment, s, assessments, assessment_queue, scheduled_messages, scheduled_messages_status

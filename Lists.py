@@ -1,4 +1,5 @@
 import os
+import random
 from sys import platform
 
 lists_path = "Lists/" if platform == "linux" or platform == "linux2" else "Lists\\"
@@ -17,6 +18,7 @@ def process_command(command):
     except IndexError:
         list_name, action = (command[:-1], command[-1])  
 
+    rand_emojies = "💋✌️👻🤡👀😩🤤🫦"
 
     # Get the list corresponding to the list name
     task_list = get_task_list(list_name)
@@ -36,8 +38,8 @@ def process_command(command):
         if (index != 0):
             del task_list[index]
         save_task_list(list_name, task_list)
-        list_as_string = '\n'.join([str(item) for item in task_list])
-        return_value = list_as_string
+        list_as_string = '\n'.join([str(item) if i == 0 else "- " + str(item) for i, item in enumerate(task_list)])
+        return_value = (list_as_string, rand_emojies[random.randint(0, len(rand_emojies) - 1)])
     elif action == "clear":
         # Clear the list
         task_list = [task_list[0]]
@@ -45,7 +47,7 @@ def process_command(command):
         return_value = "👍"
     elif action == "?":
         # Print the list
-        list_as_string = '\n'.join([str(item) for item in task_list])
+        list_as_string = '\n'.join([str(item) if i == 0 else "- " + str(item) for i, item in enumerate(task_list)])
         return_value = list_as_string
     else:
         # raise Exception("Incorrect Command")
