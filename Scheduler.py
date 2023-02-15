@@ -111,13 +111,13 @@ def send_message(message, html=False):
     global bot
     try:
         print(message)
-        if html == False: 
-            if isinstance(message, tuple): 
+        if html == False:
+            if isinstance(message, tuple):
                 bot.send_message(chat_id=chat_id, text=message[0])
                 bot.send_message(chat_id=chat_id, text=message[1])
             else: bot.send_message(chat_id=chat_id, text=message)
         else:
-            if isinstance(message, tuple): 
+            if isinstance(message, tuple):
                 bot.send_message(chat_id=chat_id, text=message[0], parse_mode='HTML')
                 bot.send_message(chat_id=chat_id, text=message[1], parse_mode='HTML')
             else: bot.send_message(chat_id=chat_id, text=message, parse_mode='HTML')
@@ -151,8 +151,8 @@ def day_tick():
     else: print('weekend')
 
     assessments = Assessment.read_assessments_csv(assessments_path)
-    today = datetime.datetime.today(tz)
-    if today.weekday() == 0: 
+    today = datetime.datetime.today()
+    if today.weekday() == 0:
         weekend_end_tick()
 
 def weekend_end_tick():
@@ -184,7 +184,7 @@ def schedule(random=False):
                         ))
 
 
-    else: assessment_queue.remove(assessment) 
+    else: assessment_queue.remove(assessment)
 
     scheduled_messages_status = [ False for _ in scheduled_messages.items() ]
     refresh_queue()
@@ -255,7 +255,7 @@ def on_list_interaction(message):
 
             send_message(assessments_str, True)
             refresh_queue()
-        
+
         elif (message.text.startswith('schedule?')):
             return_message = "Schedule:\n"
             for time, event in scheduled_messages.items():
