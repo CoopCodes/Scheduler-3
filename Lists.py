@@ -1,4 +1,7 @@
 import os
+from sys import platform
+
+lists_path = "Lists/" if platform == "linux" or platform == "linux2" else "Lists\\"
 
 def process_command(command):
     """Processes a command and performs the appropriate action.
@@ -6,6 +9,7 @@ def process_command(command):
     Args:
         command (str): The command to be processed.
     """
+
     # Split the command into the list name and the action
     try:
         list_name, action = command.split()[0], command.split()[1]
@@ -81,7 +85,8 @@ def save_task_list(list_name, task_list):
         list_name (str): The name of the file to save the task list to.
         task_list (list): The task list to be saved.
     """
-    with open("Lists\\" + list_name + ".txt", "w") as f:
+    global lists_path
+    with open(lists_path + list_name + ".txt", "w") as f:
         for item in task_list:
             f.write(item + "\n")
 
@@ -94,9 +99,10 @@ def load_task_list(list_name):
     Returns:
         list: The task list loaded from the file.
     """
+    global lists_path
     task_list = []
-    if os.path.exists("Lists\\" + list_name):
-        with open("Lists\\" + list_name, "r") as f:
+    if os.path.exists(lists_path + list_name):
+        with open(lists_path + list_name, "r") as f:
             for line in f:
                 task_list.append(line.strip())
     return task_list
