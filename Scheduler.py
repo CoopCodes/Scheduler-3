@@ -64,10 +64,15 @@ scheduled_messages_status = [ False for _ in scheduled_messages.items() ]
 
 assessments_path = "Lists/assessments.csv"
 assessments = Assessment.read_assessments_csv(assessments_path);
+assessment_queue = []
 
-assessment_queue = [
-    assessment for assessment in assessments
-]
+def refresh_queue():
+    global assessment_queue
+    assessment_queue = [
+        assessment for assessment in assessments
+    ]
+
+refresh_queue()
 todays_assessment = random.choice(assessment_queue)
 
 # print("{:02d}:{:02d}".format(datetime.datetime.now(tz).hour, datetime.datetime.now(tz).minute + 1))
@@ -141,9 +146,8 @@ def day_tick():
     assessments = Assessment.read_assessments_csv(assessments_path);
 
 def schedule(random=False):
-    global todays_assessment, s, assessments, assessment_queue
+    global todays_assessment, s, assessments, assessment_queue, scheduled_messages, scheduled_messages_status
     schoolwork_start_time = "16:30"
-
     if random == True:
         todays_assessment = random.choice(assessment_queue)
 
@@ -151,8 +155,8 @@ def schedule(random=False):
 
 
     if assessment.hours_per_week > 1.5:
-        assessment_queue[assessment_queue.index(assessment)].hours_per_week_completed -= 1.5
-        scheduled_messages[schoolwork_start_time] = f'Work on {assessment.title} for 1.5 hours'
+        assessment_queue[assessment_queue.index(assessment)].hours_per_week_to_be_completed -= 1.5
+        scheduled_messages[schoolwork_start_time] = f'Work on{assessment.title} for 1.5 hours'
 
         i = convert_date(schoolwork_start_time)
         j = datetime.timedelta(hours=1, minutes=30)
@@ -168,6 +172,7 @@ def schedule(random=False):
     else: assessment_queue.remove(assessment) 
 
     scheduled_messages_status = [ False for _ in scheduled_messages.items() ]
+    refresh_queue()
 
 
 
@@ -208,7 +213,8 @@ def on_list_interaction(message):
                     message.text.split(',')[1],
                     message.text.split(',')[2],
                     message.text.split(',')[3],
-                    message.text.split(',')[4]
+                    message.text.split(',')[4],
+                    True
             ); assessments.append(assessment)
 
             Assessment.write_assessments_to_csv(assessments, assessments_path)
@@ -233,6 +239,18 @@ def on_list_interaction(message):
                 assessments_str += f'<b>{assessment.title}</b>:\n     Subject: {assessment.subject}\n     Due Date: {assessment.due_date}\n     Date Handed In: {assessment.assessment_handout_date}\n     Estimated Hours: {assessment.estimated_hours}\n     Hours Per Week: {assessment.hours_per_week}\n------------------------------------------\n'
 
             send_message(assessments_str, True)
+            refresh_queue()
+        
+        elif (message.text.startswith('schedule?')):
+            return_message = "Schedule:\n"
+            for time, event in scheduled_messages.items():
+                if convert_date(time) > convert_date("15:20"):
+                    if not isinstance(event, tuple):
+                        return_message += f'<b>{time}</b> : {event}\n'
+                    else:
+                        return_message += f'<b>{time}</b> : {event[0]}\n'
+
+            send_message(return_message, True)
 
 
 

@@ -4,7 +4,8 @@ from datetime import datetime
 class Assessment:
     def __init__(self, title, subject, due_date,
                 assessment_handout_date,
-                estimated_hours):
+                estimated_hours,
+                hours_per_week_to_be_completed):
         self.title = title
         self.subject = subject
 
@@ -19,7 +20,16 @@ class Assessment:
         self.estimated_hours = int(estimated_hours)
         self.hours_per_week = \
             abs(round(self.estimated_hours / (int((self.due_date - self.assessment_handout_date).days) / 7), 2))
-        self.hours_per_week_completed = self.hours_per_week
+        
+        if isinstance(hours_per_week_to_be_completed, int):
+            self.hours_per_week_to_be_completed = hours_per_week_to_be_completed
+        
+        elif isinstance(hours_per_week_to_be_completed, bool):
+            self.hours_per_week_to_be_completed = self.hours_per_week
+        
+        else:
+            self.hours_per_week_to_be_completed = self.hours_per_week
+
 
 
 
@@ -28,13 +38,14 @@ def write_assessments_to_csv(assessments, file_path):
         writer = csv.writer(file)
         writer.writerow(['title', 'subject', 'due_date',
                          'assessment_handout_date', 'estimated_hours',
-                         'hours_per_week'])
+                         'hours_per_week', 'hours_per_week_to_be_completed'])
         for assessment in assessments:
             writer.writerow([assessment.title, assessment.subject,
                              assessment.due_date,
                              assessment.assessment_handout_date,
                              assessment.estimated_hours,
-                             assessment.hours_per_week])
+                             assessment.hours_per_week,
+                             assessment.hours_per_week_to_be_completed])
 
 
 
@@ -50,6 +61,7 @@ def read_assessments_csv(file_path):
             due_date = datetime.strptime(row[headers.index('due_date')], "%Y-%m-%d")
             assessment_handout_date = datetime.strptime(row[headers.index('assessment_handout_date')], "%Y-%m-%d")
             estimated_hours = row[headers.index('estimated_hours')]
-            assessment = Assessment(title, subject, due_date, assessment_handout_date, estimated_hours)
+            hours_per_week_to_be_completed = row[headers.index('hours_per_week_to_be_completed')]
+            assessment = Assessment(title, subject, due_date, assessment_handout_date, estimated_hours, hours_per_week_to_be_completed)
             assessments.append(assessment)
     return assessments

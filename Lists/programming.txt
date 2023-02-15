@@ -1,2 +1,2 @@
 Programming:
-Empty
+Implement a per-week reset so it resets necessary variables
