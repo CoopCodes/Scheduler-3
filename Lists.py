@@ -34,8 +34,9 @@ def process_command(command):
         return_value = "👍"
     elif action == "delete:":
         # Delete the item from the list
-        index = int(command.split(": ")[1])
-        if (index != 0):
+        try: index = int(command.split(": ")[1]) 
+        except ValueError: return_value = "Not integer"
+        if (index != 0 and isinstance(index, str)):
             del task_list[index]
         save_task_list(list_name, task_list)
         list_as_string = '\n'.join([str(item) if i == 0 else "- " + str(item) for i, item in enumerate(task_list)])
