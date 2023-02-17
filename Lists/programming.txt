@@ -1,3 +1,2 @@
 Programming:
-Implement a per-week reset so it resets necessary variables
-Make dot points for the lists
+Make it so you can add your own lists, instead of programming one
