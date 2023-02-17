@@ -13,7 +13,6 @@ import telebot
 
 from pytz import timezone
 from Lists import process_command
-# from Server import keep_alive
 from ProjectEuler import get_problem
 
 # Get the current day's classes from the classes module
