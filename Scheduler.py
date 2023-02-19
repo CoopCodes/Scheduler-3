@@ -209,9 +209,7 @@ def on_list_interaction(message):
     message.text = message.text[0].lower() + message.text[1::]
     try:
         result = process_command(message.text)
-        if (result != None):
-            send_message(result)
-        pass
+        send_message(result)
     except Exception as e:
         global assessments, assessments_path
         print('Not interacting with list')
@@ -246,6 +244,7 @@ def on_list_interaction(message):
             send_message("Format: title, subject, due_date, assessment_handout_date, estimated_hours")
 
         elif (message.text.startswith('assessments?')):
+            print('Assessments')
             assessments = Assessment.read_assessments_csv(assessments_path)
             assessments_str = "------------------------------------------\n"
             if len(assessments) < 1:

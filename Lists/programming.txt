@@ -1,4 +1,4 @@
 Programming:
-Make it so you can add your own lists, instead of programming one
-Make it so you can list all/multiple lists at the same time
 Try-catch block for Deleting object in list
+Make it so you can add multiple items at once
+Make it so it shows how many days until assessment is due when asking for assessments

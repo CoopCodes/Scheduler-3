@@ -3,6 +3,7 @@ import random
 from sys import platform
 
 lists_path = "Lists/" if platform == "linux" or platform == "linux2" else "Lists\\"
+lists = []
 
 def process_command(command):
     """Processes a command and performs the appropriate action.
@@ -10,6 +11,13 @@ def process_command(command):
     Args:
         command (str): The command to be processed.
     """
+    global lists_path, lists
+    command = command[0].lower() + command[1::]
+    lists = []
+    # Get lists
+    for list in os.listdir(lists_path):
+        if list.endswith(".txt"):
+            lists.append(list[:-4].lower())
 
     # Split the command into the list name and the action
     try:
@@ -19,14 +27,13 @@ def process_command(command):
         list_name, action = (command[:-1], command[-1])
 
     rand_emojies = "💋✌️👻🤡👀😩🤤🫦"
-
     # Get the list corresponding to the list name
-    task_list = get_task_list(list_name)
+    task_list = get_task_list(list_name) if list_name in lists else []
 
-    return_value = ''
+    return_value = ""
 
     # Perform the appropriate action
-    if action == "add:":
+    if action == "add:" and list_name != "lists":
         # Add the item to the list
         item = command.split(": ")[1]
         task_list.append(item)
@@ -46,13 +53,28 @@ def process_command(command):
         task_list = [task_list[0]]
         save_task_list(list_name, task_list)
         return_value = "👍"
-    elif action == "?":
+    elif action == "?" and list_name != "lists":
         # Print the list
         list_as_string = '\n'.join([str(item) if i == 0 else "- " + str(item) for i, item in enumerate(task_list)])
         return_value = list_as_string
-    else:
-        # raise Exception("Incorrect Command")
-        return_value = 'Not interacting with list'
+
+    if command.split(": ")[0] == "lists add":
+        create_new_list(command.split(": ")[1])
+        return_value = "👍"
+    elif command.split(": ")[0] == "delete list":
+        file_path = lists_path + command.split(": ")[1] + '.txt'
+        try:
+            os.remove(file_path)
+            return_value = "👍"
+        except OSError as e:
+            return_value = (f"Error: {file_path} could not be deleted. {e}", "👎")
+    elif command.split(": ")[0] == "lists?":
+        return_value = "All Lists:\n------------------------------------------\n"
+        for list in lists:
+            return_value += '\n'.join([str(item) if i == 0 else "- " + str(item) for i, item in enumerate(get_task_list(list))]) + "\n------------------------------------------\n"
+
+    if return_value == "":
+        raise Exception('Not interacting with list')
 
     if len(task_list) == 1:
         task_list.append('Empty')
@@ -72,14 +94,10 @@ def get_task_list(list_name):
     Returns:
         list: The task list corresponding to the given list name.
     """
-    if list_name == "programming":
-        return load_task_list("programming.txt")
-    elif list_name == "homework":
-        return load_task_list("homework.txt")
-    elif list_name == "chores":
-        return load_task_list("chores.txt")
-    elif list_name == "todo":
-        return load_task_list("todo.txt")
+    global lists
+    for list in lists:
+        if list == list_name:
+            return load_task_list(list_name + '.txt')
 
 def save_task_list(list_name, task_list):
     """Saves the given task list to the specified file.
@@ -89,9 +107,10 @@ def save_task_list(list_name, task_list):
         task_list (list): The task list to be saved.
     """
     global lists_path
-    with open(lists_path + list_name + ".txt", "w") as f:
-        for item in task_list:
-            f.write(item + "\n")
+    if os.path.isfile(lists_path + list_name + '.txt'):
+        with open(lists_path + list_name + ".txt", "w") as f:
+            for item in task_list:
+                f.write(item + "\n")
 
 def load_task_list(list_name):
     """Loads the task list from the specified file.
@@ -110,12 +129,26 @@ def load_task_list(list_name):
                 task_list.append(line.strip())
     return task_list
 
+def create_new_list(list_name):
+    """Creates a new task list with the given name.
+
+    Args:
+        list_name (str): The name of the new task list.
+    """
+    global lists_path, lists
+    with open(lists_path + list_name + ".txt", "w") as f:
+        f.write(f"{list_name}:\n")
+
+    lists.append(list_name)
+    print(lists)
+
 def main():
     # Read the command from the user
     command = input("Enter a command: ")
 
     # Process the command
-    process_command(command)
+    print(process_command(command))
+
 
 if __name__ == "__main__":
     main()
