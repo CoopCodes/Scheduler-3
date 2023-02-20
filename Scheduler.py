@@ -228,7 +228,7 @@ def on_list_interaction(message):
     message.text = message.text[0].lower() + message.text[1::]
     result = process_command(message.text)
     if result != None:
-        send_message(result)
+        send_message(result, True)
 
     else:
         print('Not interacting with list')

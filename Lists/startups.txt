@@ -1,2 +1,0 @@
-startups:
-Little Alchemy Game but with ChatGPT

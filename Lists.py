@@ -12,22 +12,30 @@ def process_command(command):
         command (str): The command to be processed.
     """
     global lists_path, lists
-    # command = command[0].lower() + command[1::]
+    if not ':' in command:
+        command = command.lower()
+    else:
+        command = command.split(':')[0].lower() + ':' + command.split(':')[1]
+
     lists = []
     # Get lists
     for list in os.listdir(lists_path):
         if list.endswith(".txt"):
-            lists.append(list[:-4])
+            lists.append(list[:-4].lower())
 
 
     # Split the command into the list name and the action
     try:
-        list_name, action = command.split()[0].lower(), command.split()[1].lower()
-        pass
-    except IndexError:
-        list_name, action = (command[:-1].lower()   , command[-1])
+        if (e := [substring in command for substring in lists]):
+            list_name = lists[e.index(True)]
+            action = command.split(lists[e.index(True)])[1].strip().lower()
+            if ':' in action: action = action.split(':')[0].strip().lower()
+    except ValueError:
+        list_name, action = '', ''         
+        
 
-    # print(lists, list_name)
+    print(list_name, action)
+
     rand_emojies = "💋✌️👻🤡👀😩🤤🫦"
     # Get the list corresponding to the list name
     task_list = get_task_list(list_name) if list_name in lists else []
@@ -35,13 +43,22 @@ def process_command(command):
     return_value = ""
 
     # Perform the appropriate action
-    if action == "add:" and list_name != "lists":
+    if action == "add" and list_name != "lists":
         # Add the item to the list
         item = command.split(": ")[1]
-        task_list.append(item)
-        save_task_list(list_name, task_list)
+        if '|' not in command:
+            task_list.append(item)
+            save_task_list(list_name, task_list)
+        
+        else:
+            items = command.split('|')
+            items[0] = items[0].split(': ')[1]
+            for item in items:
+                item = item[0].strip() + item[1:]
+                task_list.append(item)
+            save_task_list(list_name, task_list)
         return_value = "👍"
-    elif action == "delete:":
+    elif action == "delete":
         # Delete the item from the list
         try: index = int(command.split(": ")[1])
         except ValueError: return_value = "Not integer"
@@ -142,7 +159,7 @@ def create_new_list(list_name):
     """
     global lists_path, lists
     with open(lists_path + list_name + ".txt", "w") as f:
-        f.write(f"{list_name}:\n")
+        f.write(f"{list_name[0].upper() + list_name[1::].lower()}:\n")
 
     lists.append(list_name)
     print(lists)

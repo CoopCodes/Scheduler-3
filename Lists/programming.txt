@@ -1,6 +1,3 @@
 Programming:
 Try-catch block for Deleting object in list
-Make it so you can add multiple items at once
-Make it so it shows how many days until assessment is due when asking for assessments
 progress bar for assessments
-FIX LISTS!
