@@ -31,7 +31,7 @@ class Assessment:
         else:
             self.hours_per_week_to_be_completed = self.hours_per_week
 
-        self.days_till_due_date = (self.handout_date - datetime.datetime.now(pytz.timezone('Australia/Brisbane'))).days
+        self.days_till_due   = (self.handout_date - datetime.now(pytz.timezone('Australia/Brisbane'))).days
 
 
 

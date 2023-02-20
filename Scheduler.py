@@ -210,7 +210,7 @@ def on_list_interaction(message):
     result = process_command(message.text)
     if result != None:
         send_message(result)
-        
+
     else:
         print('Not interacting with list')
         if (message.text.startswith('project euler:')):
@@ -252,7 +252,7 @@ def on_list_interaction(message):
                 return
 
             for assessment in assessments:
-                assessments_str += f'<b>{assessment.title}</b>:\n     Subject: {assessment.subject}\n     Due Date: {assessment.due_date}\n     Date Handed In: {assessment.assessment_handout_date}\n     Estimated Hours: {assessment.estimated_hours}\n     Hours Per Week: {assessment.hours_per_week}\n------------------------------------------\n'
+                assessments_str += f'<b>{assessment.title}</b>:\n     Subject: {assessment.subject}\n     Due Date: {assessment.due_date}\n     Date Handed In: {assessment.assessment_handout_date}\n     Estimated Hours: {assessment.estimated_hours}\n     Hours Per Week: {assessment.hours_per_week}\n     Days Until Due: {assessment.days_till_due}\n------------------------------------------\n'
 
             send_message(assessments_str, True)
             refresh_queue()
