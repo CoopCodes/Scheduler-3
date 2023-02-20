@@ -203,15 +203,15 @@ send_message('Online')
 
 @bot.message_handler()
 def on_list_interaction(message):
-    global todays_assessment
+    global todays_assessment, assessments, assessments_path
     print('Message Recieved')
 
     message.text = message.text[0].lower() + message.text[1::]
-    try:
-        result = process_command(message.text)
+    result = process_command(message.text)
+    if result != None:
         send_message(result)
-    except Exception as e:
-        global assessments, assessments_path
+        
+    else:
         print('Not interacting with list')
         if (message.text.startswith('project euler:')):
             try:
@@ -241,7 +241,7 @@ def on_list_interaction(message):
 
 
         elif (message.text.startswith('assessment?')):
-            send_message("Format: title, subject, due_date, assessment_handout_date, estimated_hours")
+            send_message("Format: title, subject, due_date, handout_date, estimated_hours")
 
         elif (message.text.startswith('assessments?')):
             print('Assessments')

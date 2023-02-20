@@ -74,12 +74,12 @@ def process_command(command):
             return_value += '\n'.join([str(item) if i == 0 else "- " + str(item) for i, item in enumerate(get_task_list(list))]) + "\n------------------------------------------\n"
 
     if return_value == "":
-        raise Exception('Not interacting with list')
+        return None
 
-    if len(task_list) == 1:
-        task_list.append('Empty')
-    elif len(task_list) > 1 and 'Empty' in task_list:
-        task_list.remove('Empty')
+    # if len(task_list) == 1:
+    #     task_list.append('Empty')
+    # elif len(task_list) > 1 and 'Empty' in task_list:
+    #     task_list.remove('Empty')
 
     save_task_list(list_name, task_list)
 
