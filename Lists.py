@@ -12,20 +12,22 @@ def process_command(command):
         command (str): The command to be processed.
     """
     global lists_path, lists
-    command = command[0].lower() + command[1::]
+    # command = command[0].lower() + command[1::]
     lists = []
     # Get lists
     for list in os.listdir(lists_path):
         if list.endswith(".txt"):
-            lists.append(list[:-4].lower())
+            lists.append(list[:-4])
+
 
     # Split the command into the list name and the action
     try:
-        list_name, action = command.split()[0], command.split()[1]
+        list_name, action = command.split()[0].lower(), command.split()[1].lower()
         pass
     except IndexError:
-        list_name, action = (command[:-1], command[-1])
+        list_name, action = (command[:-1].lower()   , command[-1])
 
+    # print(lists, list_name)
     rand_emojies = "💋✌️👻🤡👀😩🤤🫦"
     # Get the list corresponding to the list name
     task_list = get_task_list(list_name) if list_name in lists else []
@@ -44,7 +46,10 @@ def process_command(command):
         try: index = int(command.split(": ")[1])
         except ValueError: return_value = "Not integer"
         if (index != 0):
-            del task_list[index]
+            try:
+                del task_list[index]
+            except IndexError:
+                return
         save_task_list(list_name, task_list)
         list_as_string = '\n'.join([str(item) if i == 0 else "- " + str(item) for i, item in enumerate(task_list)])
         return_value = (list_as_string, rand_emojies[random.randint(0, len(rand_emojies) - 1)])
