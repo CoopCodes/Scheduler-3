@@ -1,0 +1,6 @@
+Unknowns:
+How chatGPT was trained
+How calculus works
+Neural networks/Activation Functions
+How gradient descent and back propagation is applied
+To better understand the overall process of a neural network, create a NN with just 2 or 3 neurons, where it can train using gradient descent

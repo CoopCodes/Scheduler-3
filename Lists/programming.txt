@@ -1,3 +1,9 @@
 Programming:
 Try-catch block for Deleting object in list
 progress bar for assessments
+Fix the order of the schedule when you ask for the schedule
+Implement Selenium scripts to scrape the school website
+Tell the user if their syntax is wrong
+Make an AHK Script to time how long I'm on a specific word document
+Fix case sensitive when deleting lists
+gradient descent video
