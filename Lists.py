@@ -31,14 +31,15 @@ def process_command(command):
             action = command.split(lists[e.index(True)])[1].strip().lower()
             if ':' in action: action = action.split(':')[0].strip().lower()
     except ValueError:
-        list_name, action = '', ''         
-        
+        list_name, action = '', ''
 
     print(list_name, action)
 
     rand_emojies = "💋✌️👻🤡👀😩🤤🫦"
+
     # Get the list corresponding to the list name
     task_list = get_task_list(list_name) if list_name in lists else []
+    print(list_name in lists)
 
     return_value = ""
 
@@ -49,7 +50,7 @@ def process_command(command):
         if '|' not in command:
             task_list.append(item)
             save_task_list(list_name, task_list)
-        
+
         else:
             items = command.split('|')
             items[0] = items[0].split(': ')[1]
@@ -145,10 +146,12 @@ def load_task_list(list_name):
     """
     global lists_path
     task_list = []
+    print(lists_path + list_name)
     if os.path.exists(lists_path + list_name):
         with open(lists_path + list_name, "r") as f:
             for line in f:
                 task_list.append(line.strip())
+    print(task_list)
     return task_list
 
 def create_new_list(list_name):
@@ -158,7 +161,7 @@ def create_new_list(list_name):
         list_name (str): The name of the new task list.
     """
     global lists_path, lists
-    with open(lists_path + list_name + ".txt", "w") as f:
+    with open(lists_path + list_name.lower() + ".txt", "w") as f:
         f.write(f"{list_name[0].upper() + list_name[1::].lower()}:\n")
 
     lists.append(list_name)

@@ -1,0 +1,6 @@
+Psmt:
+Condense Formulate section
+Condense the whole essay
+Possibly do the calculations by hand if need
+Implement what you talked about in Evaluate and Verify,
+Re-do Solution section to make it so the hoop height is 3.05 not 3.1
